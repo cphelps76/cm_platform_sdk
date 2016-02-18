@@ -812,6 +812,22 @@ public final class CMSettings {
                 new InclusiveIntegerRangeValidator(0, 3);
 
         /**
+         * Whether the notification light will be allowed when in zen mode during downtime
+         */
+        public static final String ZEN_ALLOW_LIGHTS = "allow_lights";
+
+        /** @hide */
+        public static final Validator ZEN_ALLOW_LIGHTS_VALIDATOR = sBooleanValidator;
+
+        /**
+         * Whether the notification light will be allowed when in zen priority mode during downtime
+         */
+        public static final String ZEN_PRIORITY_ALLOW_LIGHTS = "zen_priority_allow_lights";
+
+        /** @hide */
+        public static final Validator ZEN_PRIORITY_ALLOW_LIGHTS_VALIDATOR = sBooleanValidator;
+
+        /**
          * Display style of AM/PM next to clock in status bar
          * 0: Normal display (Eclair stock)
          * 1: Small display (Froyo stock)
@@ -1727,6 +1743,14 @@ public final class CMSettings {
                 sBooleanValidator;
 
         /**
+         * Whether or not to launch default music player when headset is connected
+         */
+        public static final String HEADSET_CONNECT_PLAYER = "headset_connect_player";
+
+        /** @hide */
+        public static final Validator HEADSET_CONNECT_PLAYER_VALIDATOR = sBooleanValidator;
+
+        /**
          * I can haz more bukkits
          * @hide
          */
@@ -1829,6 +1853,8 @@ public final class CMSettings {
                 CMSettings.System.STATUS_BAR_SHOW_BATTERY_PERCENT,
                 CMSettings.System.VOLUME_KEYS_CONTROL_RING_STREAM,
                 CMSettings.System.NAVIGATION_BAR_MENU_ARROW_KEYS,
+                CMSettings.System.HEADSET_CONNECT_PLAYER,
+                CMSettings.System.ZEN_ALLOW_LIGHTS,
         };
 
         /**
@@ -1973,6 +1999,9 @@ public final class CMSettings {
                     NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES_VALIDATOR);
             VALIDATORS.put(NOTIFICATION_LIGHT_COLOR_AUTO,
                     NOTIFICATION_LIGHT_COLOR_AUTO_VALIDATOR);
+            VALIDATORS.put(HEADSET_CONNECT_PLAYER, HEADSET_CONNECT_PLAYER_VALIDATOR);
+            VALIDATORS.put(ZEN_ALLOW_LIGHTS, ZEN_ALLOW_LIGHTS_VALIDATOR);
+            VALIDATORS.put(ZEN_PRIORITY_ALLOW_LIGHTS, ZEN_PRIORITY_ALLOW_LIGHTS_VALIDATOR);
             VALIDATORS.put(__MAGICAL_TEST_PASSING_ENABLER,
                     __MAGICAL_TEST_PASSING_ENABLER_VALIDATOR);
         };
@@ -2606,6 +2635,12 @@ public final class CMSettings {
          */
         public static final String LIVE_LOCK_SCREEN_ENABLED = "live_lock_screen_enabled";
 
+        /**
+         * Whether keyguard will direct show security view (0 = false, 1 = true)
+         * @hide
+         */
+        public static final String LOCK_PASS_TO_SECURITY_VIEW = "lock_screen_pass_to_security_view";
+
         // endregion
 
         /**
@@ -2652,6 +2687,7 @@ public final class CMSettings {
                 CMSettings.Secure.APP_PERFORMANCE_PROFILES_ENABLED,
                 CMSettings.Secure.QS_LOCATION_ADVANCED,
                 CMSettings.Secure.LOCKSCREEN_VISUALIZER_ENABLED,
+                CMSettings.Secure.LOCK_PASS_TO_SECURITY_VIEW
         };
 
         /**
@@ -3100,7 +3136,9 @@ public final class CMSettings {
         /**
          * Whether to sound when charger power is connected/disconnected
          * @hide
+         * @deprecated Use {@link android.provider.Settings.Global#CHARGING_SOUNDS_ENABLED} instead
          */
+        @Deprecated
         public static final String POWER_NOTIFICATIONS_ENABLED = "power_notifications_enabled";
 
         /**
@@ -3135,11 +3173,11 @@ public final class CMSettings {
          */
         public static final String[] LEGACY_GLOBAL_SETTINGS = new String[]{
                 CMSettings.Global.WAKE_WHEN_PLUGGED_OR_UNPLUGGED,
-                CMSettings.Global.POWER_NOTIFICATIONS_ENABLED,
                 CMSettings.Global.POWER_NOTIFICATIONS_VIBRATE,
                 CMSettings.Global.POWER_NOTIFICATIONS_RINGTONE,
                 CMSettings.Global.ZEN_DISABLE_DUCKING_DURING_MEDIA_PLAYBACK,
-                CMSettings.Global.WIFI_AUTO_PRIORITIES_CONFIGURATION};
+                CMSettings.Global.WIFI_AUTO_PRIORITIES_CONFIGURATION
+        };
 
         /**
          * @hide

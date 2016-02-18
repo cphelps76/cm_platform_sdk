@@ -249,7 +249,8 @@ public class CMDatabaseHelper extends SQLiteOpenHelper{
                     R.integer.def_force_show_navbar);
 
             loadStringSetting(stmt, CMSettings.Secure.QS_TILES,
-                    R.string.def_qs_tiles);
+                    org.cyanogenmod.platform.internal.
+                            R.string.config_defaultQuickSettingsTiles);
 
             loadBooleanSetting(stmt, CMSettings.Secure.QS_USE_MAIN_TILES,
                     R.bool.def_sysui_qs_main_tiles);
@@ -294,6 +295,9 @@ public class CMDatabaseHelper extends SQLiteOpenHelper{
 
             loadBooleanSetting(stmt, CMSettings.System.SWAP_VOLUME_KEYS_ON_ROTATION,
                     R.bool.def_swap_volume_keys_on_rotation);
+
+            loadIntegerSetting(stmt, CMSettings.System.STATUS_BAR_BATTERY_STYLE,
+                    R.integer.def_battery_style);
 
             if (mContext.getResources().getBoolean(R.bool.def_notification_pulse_custom_enable)) {
                 loadStringSetting(stmt, CMSettings.System.NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES,

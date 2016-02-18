@@ -120,6 +120,12 @@ cmsdk_LOCAL_INTERMEDIATE_SOURCES := \
 LOCAL_INTERMEDIATE_SOURCES := \
     $(cmsdk_LOCAL_INTERMEDIATE_SOURCES)
 
+# Make sure that R.java and Manifest.java are built before we build
+# the source for this library.
+cm_framework_res_R_stamp := \
+    $(call intermediates-dir-for,APPS,org.cyanogenmod.platform-res,,COMMON)/src/R.stamp
+$(full_classes_compiled_jar): $(cm_framework_res_R_stamp)
+$(built_dex_intermediate): $(cm_framework_res_R_stamp)
 $(full_target): $(cm_framework_built) $(gen)
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -224,8 +230,7 @@ LOCAL_DROIDDOC_OPTIONS:= \
         -exclude org.cyanogenmod.platform.internal \
         -api $(INTERNAL_CM_PLATFORM_API_FILE) \
         -removedApi $(INTERNAL_CM_PLATFORM_REMOVED_API_FILE) \
-        -nodocs \
-        -verbose
+        -nodocs
 
 LOCAL_UNINSTALLABLE_MODULE := true
 
@@ -256,8 +261,7 @@ LOCAL_DROIDDOC_OPTIONS:=\
         -exclude org.cyanogenmod.platform.internal \
         -api $(INTERNAL_CM_PLATFORM_SYSTEM_API_FILE) \
         -removedApi $(INTERNAL_CM_PLATFORM_SYSTEM_REMOVED_API_FILE) \
-        -nodocs \
-        -verbose
+        -nodocs
 
 LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR:= build/tools/droiddoc/templates-sdk
 

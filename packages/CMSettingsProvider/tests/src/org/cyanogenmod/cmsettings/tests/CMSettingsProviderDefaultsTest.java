@@ -73,6 +73,9 @@ public class CMSettingsProviderDefaultsTest extends AndroidTestCase {
         SYSTEM_SETTINGS_DEFAULTS.add(new Setting(
                 CMSettings.System.NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES,
                 "R.string.def_notification_pulse_custom_value"));
+        SYSTEM_SETTINGS_DEFAULTS.add(new Setting(
+                CMSettings.System.STATUS_BAR_BATTERY_STYLE,
+                "R.integer.def_battery_style"));
     }
 
     //SECURE
@@ -98,9 +101,6 @@ public class CMSettingsProviderDefaultsTest extends AndroidTestCase {
         SECURE_SETTINGS_DEFAULTS.add(new Setting(
                 CMSettings.Secure.DEFAULT_THEME_PACKAGE,
                 "R.string.def_theme_package"));
-        SECURE_SETTINGS_DEFAULTS.add(new Setting(
-                CMSettings.Secure.QS_TILES,
-                "R.string.def_qs_tiles"));
         SECURE_SETTINGS_DEFAULTS.add(new Setting(
                 CMSettings.Secure.PROTECTED_COMPONENT_MANAGERS,
                 "R.string.def_protected_component_managers"));
