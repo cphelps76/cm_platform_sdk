@@ -107,4 +107,6 @@
     <!-- Default values for protected component managers -->
     <string name="def_protected_component_managers" translatable="false">com.android.settings|com.android.launcher3|com.cyanogenmod.trebuchet</string>
 
+    <!-- Default value for adb notification -->
+    <integer name="def_adb_notify">0</integer>
 </resources>

@@ -264,6 +264,9 @@ public class CMDatabaseHelper extends SQLiteOpenHelper{
             loadStringSetting(stmt,
                     CMSettings.Secure.PROTECTED_COMPONENT_MANAGERS,
                     R.string.def_protected_component_managers);
+
+            loadIntegerSetting(stmt, CMSettings.Secure.ADB_NOTIFY,
+                    R.integer.def_adb_notify);
         } finally {
             if (stmt != null) stmt.close();
         }
