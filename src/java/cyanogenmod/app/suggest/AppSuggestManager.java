@@ -63,18 +63,28 @@ public class AppSuggestManager {
             return sInstance;
         }
 
-        context = context.getApplicationContext() != null ? context.getApplicationContext() : context;
+        context = context.getApplicationContext() != null ?
+                context.getApplicationContext() : context;
 
         sInstance = new AppSuggestManager(context);
+
+        if (context.getPackageManager().hasSystemFeature(CMContextConstants.Features.APP_SUGGEST)
+                && sImpl == null) {
+            throw new RuntimeException("Unable to get AppSuggestManagerService. " +
+                    "The service either crashed, was not started, or the interface has been" +
+                    " called to early in SystemServer init");
+        }
 
         return sInstance;
     }
 
     private AppSuggestManager(Context context) {
         mContext = context.getApplicationContext();
+        sImpl = getService();
     }
 
-    private static synchronized IAppSuggestManager getService() {
+    /** @hide */
+    public static synchronized IAppSuggestManager getService() {
         if (sImpl == null) {
             IBinder b = ServiceManager.getService(CMContextConstants.CM_APP_SUGGEST_SERVICE);
             if (b != null) {
