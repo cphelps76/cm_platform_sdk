@@ -68,6 +68,16 @@ public final class CMSettings {
      */
     public static final String ACTION_DATA_USAGE = "cyanogenmod.settings.ACTION_DATA_USAGE";
 
+    /**
+     * Activity Action: Show LiveDisplay settings
+     * <p>
+     * Input: Nothing.
+     * <p>
+     * Output: Nothing.
+     */
+    public static final String ACTION_LIVEDISPLAY_SETTINGS =
+            "cyanogenmod.settings.LIVEDISPLAY_SETTINGS";
+
     // region Call Methods
 
     /**
@@ -428,6 +438,13 @@ public final class CMSettings {
                 CALL_METHOD_GET_SYSTEM,
                 CALL_METHOD_PUT_SYSTEM);
 
+        /** @hide */
+        protected static final ArraySet<String> MOVED_TO_SECURE;
+        static {
+            MOVED_TO_SECURE = new ArraySet<>(1);
+            MOVED_TO_SECURE.add(Secure.DEV_FORCE_SHOW_NAVBAR);
+        }
+
         // region Methods
 
         /**
@@ -491,6 +508,11 @@ public final class CMSettings {
         /** @hide */
         public static String getStringForUser(ContentResolver resolver, String name,
                 int userId) {
+            if (MOVED_TO_SECURE.contains(name)) {
+                Log.w(TAG, "Setting " + name + " has moved from CMSettings.System"
+                        + " to CMSettings.Secure, value is unchanged.");
+                return CMSettings.Secure.getStringForUser(resolver, name, userId);
+            }
             return sNameValueCache.getStringForUser(resolver, name, userId);
         }
 
@@ -1318,10 +1340,15 @@ public final class CMSettings {
          * Use display power saving features such as CABC or CABL
          * 0 = 0ff, 1 = on
          */
-        public static final String DISPLAY_LOW_POWER = "display_low_power";
+        public static final String DISPLAY_CABC = "display_low_power";
+
+        /**
+         * @deprecated
+         */
+        public static final String DISPLAY_LOW_POWER = DISPLAY_CABC;
 
         /** @hide */
-        public static final Validator DISPLAY_LOW_POWER_VALIDATOR =
+        public static final Validator DISPLAY_CABC_VALIDATOR =
                 sBooleanValidator;
 
         /**
@@ -1332,6 +1359,16 @@ public final class CMSettings {
 
         /** @hide */
         public static final Validator DISPLAY_COLOR_ENHANCE_VALIDATOR =
+                sBooleanValidator;
+
+        /**
+         * Use auto contrast optimization feature of display
+         * 0 = 0ff, 1 = on
+         */
+        public static final String DISPLAY_AUTO_CONTRAST = "display_auto_contrast";
+
+        /** @hide */
+        public static final Validator DISPLAY_AUTO_CONTRAST_VALIDATOR =
                 sBooleanValidator;
 
         /**
@@ -1365,7 +1402,7 @@ public final class CMSettings {
 
         /** @hide */
         public static final Validator LIVE_DISPLAY_HINTED_VALIDATOR =
-                sBooleanValidator;
+                new InclusiveIntegerRangeValidator(-3, 1);
 
         /**
          *  Enable statusbar double tap gesture on to put device to sleep
@@ -1827,7 +1864,7 @@ public final class CMSettings {
                 CMSettings.System.DISPLAY_TEMPERATURE_NIGHT,
                 CMSettings.System.DISPLAY_TEMPERATURE_MODE,
                 CMSettings.System.DISPLAY_AUTO_OUTDOOR_MODE,
-                CMSettings.System.DISPLAY_LOW_POWER,
+                CMSettings.System.DISPLAY_CABC,
                 CMSettings.System.DISPLAY_COLOR_ENHANCE,
                 CMSettings.System.DISPLAY_COLOR_ADJUSTMENT,
                 CMSettings.System.LIVE_DISPLAY_HINTED,
@@ -1889,7 +1926,15 @@ public final class CMSettings {
          * @hide
          */
         public static boolean shouldInterceptSystemProvider(String key) {
-            return key.equals(System.SYSTEM_PROFILES_ENABLED);
+            switch (key) {
+                case System.SYSTEM_PROFILES_ENABLED:
+                // some apps still query Settings.System.DEV_FORCE_SHOW_NAVBAR;
+                // we intercept the call, and return CMSettings.Secure.DEV_FORCE_SHOW_NAVBAR's value
+                case Secure.DEV_FORCE_SHOW_NAVBAR:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         /**
@@ -1965,8 +2010,9 @@ public final class CMSettings {
             VALIDATORS.put(DISPLAY_TEMPERATURE_DAY, DISPLAY_TEMPERATURE_DAY_VALIDATOR);
             VALIDATORS.put(DISPLAY_TEMPERATURE_NIGHT, DISPLAY_TEMPERATURE_NIGHT_VALIDATOR);
             VALIDATORS.put(DISPLAY_TEMPERATURE_MODE, DISPLAY_TEMPERATURE_MODE_VALIDATOR);
+            VALIDATORS.put(DISPLAY_AUTO_CONTRAST, DISPLAY_AUTO_CONTRAST_VALIDATOR);
             VALIDATORS.put(DISPLAY_AUTO_OUTDOOR_MODE, DISPLAY_AUTO_OUTDOOR_MODE_VALIDATOR);
-            VALIDATORS.put(DISPLAY_LOW_POWER, DISPLAY_LOW_POWER_VALIDATOR);
+            VALIDATORS.put(DISPLAY_CABC, DISPLAY_CABC_VALIDATOR);
             VALIDATORS.put(DISPLAY_COLOR_ENHANCE, DISPLAY_COLOR_ENHANCE_VALIDATOR);
             VALIDATORS.put(DISPLAY_COLOR_ADJUSTMENT, DISPLAY_COLOR_ADJUSTMENT_VALIDATOR);
             VALIDATORS.put(LIVE_DISPLAY_HINTED, LIVE_DISPLAY_HINTED_VALIDATOR);
@@ -2703,6 +2749,14 @@ public final class CMSettings {
          */
         public static final String WEATHER_PROVIDER_SERVICE = "weather_provider_service";
 
+        /**
+         * Set to 0 when we enter the CM Setup Wizard.
+         * Set to 1 when we exit the CM Setup Wizard.
+         *
+         * @hide
+         */
+        public static final String CM_SETUP_WIZARD_COMPLETED = "cm_setup_wizard_completed";
+
         // endregion
 
         /**
@@ -2819,7 +2873,15 @@ public final class CMSettings {
          * @hide
          */
         public static boolean shouldInterceptSystemProvider(String key) {
-            return false;
+            switch (key) {
+                // some apps still query Settings.System.DEV_FORCE_SHOW_NAVBAR, and it was moved to
+                // Settings.Secure, then CMSettings.Secure. Forward queries from Settings.Secure
+                // to CMSettings.Secure here just in case an app stuck with the Settings.Secure call
+                case DEV_FORCE_SHOW_NAVBAR:
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 
@@ -3228,6 +3290,14 @@ public final class CMSettings {
          * @hide
          */
         public static final String WIFI_AUTO_PRIORITIES_CONFIGURATION = "wifi_auto_priority";
+
+        /**
+         * Global temperature unit in which the weather data will be reported
+         * Valid values are:
+         * <p>{@link cyanogenmod.providers.WeatherContract.WeatherColumns.TempUnit#CELSIUS}</p>
+         * <p>{@link cyanogenmod.providers.WeatherContract.WeatherColumns.TempUnit#FAHRENHEIT}</p>
+         */
+        public static final String WEATHER_TEMPERATURE_UNIT = "weather_temperature_unit";
         // endregion
 
         /**

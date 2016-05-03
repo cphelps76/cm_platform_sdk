@@ -132,6 +132,21 @@ public final class CMContextConstants {
     public static final String CM_WEATHER_SERVICE = "cmweather";
 
     /**
+     * Manages display color adjustments
+     *
+     * @hide
+     */
+    public static final String CM_LIVEDISPLAY_SERVICE = "cmlivedisplay";
+
+
+    /**
+     * Manages enhanced audio functionality
+     *
+     * @hide
+     */
+    public static final String CM_AUDIO_SERVICE = "cmaudio";
+
+    /**
      * Features supported by the CMSDK.
      */
     public static class Features {
@@ -214,5 +229,21 @@ public final class CMContextConstants {
          */
         @SdkConstant(SdkConstant.SdkConstantType.FEATURE)
         public static final String WEATHER_SERVICES = "org.cyanogenmod.weather";
+
+        /**
+         * Feature for {@link PackageManager#getSystemAvailableFeatures} and
+         * {@link PackageManager#hasSystemFeature}: The device includes the LiveDisplay service
+         * utilized by the cmsdk.
+         */
+        @SdkConstant(SdkConstant.SdkConstantType.FEATURE)
+        public static final String LIVEDISPLAY = "org.cyanogenmod.livedisplay";
+
+        /**
+         * Feature for {@link PackageManager#getSystemAvailableFeatures} and
+         * {@link PackageManager#hasSystemFeature}: The device includes the CM audio extensions
+         * utilized by the cmsdk.
+         */
+        @SdkConstant(SdkConstant.SdkConstantType.FEATURE)
+        public static final String AUDIO = "org.cyanogenmod.audio";
     }
 }

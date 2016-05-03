@@ -145,4 +145,6 @@ uyguladığınız temayı değiştirmesine izin verir.</string>
   <!-- DataUsageProvider write permission description -->
   <!-- DataUsageProvider read permission title -->
   <!-- DataUsageProvider read permission description -->
+  <!-- LiveDisplay manager permission -->
+  <!-- CMAudioService - observe session changes permission -->
 </resources>

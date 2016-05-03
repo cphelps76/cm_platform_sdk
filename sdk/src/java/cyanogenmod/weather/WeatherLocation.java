@@ -19,9 +19,12 @@ package cyanogenmod.weather;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import android.text.TextUtils;
 import cyanogenmod.os.Build;
 import cyanogenmod.os.Concierge;
 import cyanogenmod.os.Concierge.ParcelInfo;
+
+import java.util.UUID;
 
 /**
  * A class representing a geographical location that a weather service provider can use to
@@ -32,64 +35,154 @@ import cyanogenmod.os.Concierge.ParcelInfo;
 public final class WeatherLocation implements Parcelable{
     private String mCityId;
     private String mCity;
+    private String mState;
     private String mPostal;
     private String mCountryId;
     private String mCountry;
-    private int mKey;
+    private String mKey;
 
     private WeatherLocation() {}
 
+    /**
+     * Builder class for {@link WeatherLocation}
+     */
     public static class Builder {
-        String mCityId;
-        String mCity;
-        String mPostal;
-        String mCountryId;
-        String mCountry;
+        String mCityId = "";
+        String mCity = "";
+        String mState = "";
+        String mPostal = "";
+        String mCountryId = "";
+        String mCountry = "";
 
+        /**
+         * @param cityId An identifier for the city (for example WOEID - Where On Earth IDentifier)
+         * @param cityName The name of the city
+         */
         public Builder(String cityId, String cityName) {
+            if (cityId == null || cityName == null) {
+                throw new IllegalArgumentException("Illegal to set city id AND city to null");
+            }
             this.mCityId = cityId;
             this.mCity = cityName;
         }
 
-        public Builder setCountry(String countyId, String country) {
-            this.mCountryId = countyId;
+        /**
+         * @param cityName The name of the city
+         */
+        public Builder(String cityName) {
+            if (cityName == null) {
+                throw new IllegalArgumentException("City name can't be null");
+            }
+            this.mCity = cityName;
+        }
+
+        /**
+         * @param countryId An identifier for the country (for example ISO alpha-2, ISO alpha-3,
+         *                 ISO 3166-1 numeric-3, etc)
+         * @return The {@link Builder} instance
+         */
+        public Builder setCountryId(String countryId) {
+            if (countryId == null) {
+                throw new IllegalArgumentException("Country ID can't be null");
+            }
+            this.mCountryId = countryId;
+            return this;
+        }
+
+        /**
+         * @param country The country name
+         * @return The {@link Builder} instance
+         */
+        public Builder setCountry(String country) {
+            if (country == null) {
+                throw new IllegalArgumentException("Country can't be null");
+            }
             this.mCountry = country;
             return this;
         }
 
+        /**
+         * @param postalCode The postal/ZIP code
+         * @return The {@link Builder} instance
+         */
         public Builder setPostalCode(String postalCode) {
+            if (postalCode == null) {
+                throw new IllegalArgumentException("Postal code/ZIP can't be null");
+            }
             this.mPostal = postalCode;
             return this;
         }
 
+        /**
+         * @param state The state or territory where the city is located
+         * @return The {@link Builder} instance
+         */
+        public Builder setState(String state) {
+            if (state == null) {
+                throw new IllegalArgumentException("State can't be null");
+            }
+            this.mState = state;
+            return this;
+        }
+
+        /**
+         * Combine all of the options that have been set and return a new {@link WeatherLocation}
+         * object
+         * @return {@link WeatherLocation}
+         */
         public WeatherLocation build() {
             WeatherLocation weatherLocation = new WeatherLocation();
             weatherLocation.mCityId = this.mCityId;
             weatherLocation.mCity = this.mCity;
+            weatherLocation.mState = this.mState;
             weatherLocation.mPostal = this.mPostal;
             weatherLocation.mCountryId = this.mCountryId;
             weatherLocation.mCountry = this.mCountry;
-            weatherLocation.mKey = this.hashCode();
+            weatherLocation.mKey = UUID.randomUUID().toString();
             return weatherLocation;
         }
     }
 
+    /**
+     * @return The city ID. This method will return an empty string if the city ID was not set
+     */
     public String getCityId() {
         return mCityId;
     }
 
+    /**
+     * @return The city name. This method will return an empty string if the city name was not set
+     */
     public String getCity() {
         return mCity;
     }
 
+    /**
+     * @return The state name. This method will return an empty string if the state was not set
+     */
+    public String getState() {
+        return mState;
+    }
+
+    /**
+     * @return The postal/ZIP code. This method will return an empty string if the postal/ZIP code
+     * was not set
+     */
     public String getPostalCode() {
         return mPostal;
     }
 
+    /**
+     * @return The country ID. This method will return an empty string if the country ID was not set
+     */
     public String getCountryId() {
         return mCountryId;
     }
 
+    /**
+     * @return The country name. This method will return an empty string if the country ID was not
+     * set
+     */
     public String getCountry() {
         return mCountry;
     }
@@ -100,9 +193,10 @@ public final class WeatherLocation implements Parcelable{
         int parcelableVersion = parcelInfo.getParcelVersion();
 
         if (parcelableVersion >= Build.CM_VERSION_CODES.ELDERBERRY) {
-            mKey = in.readInt();
+            mKey = in.readString();
             mCityId = in.readString();
             mCity = in.readString();
+            mState = in.readString();
             mPostal = in.readString();
             mCountryId = in.readString();
             mCountry = in.readString();
@@ -135,9 +229,10 @@ public final class WeatherLocation implements Parcelable{
         ParcelInfo parcelInfo = Concierge.prepareParcel(dest);
 
         // ==== ELDERBERRY =====
-        dest.writeInt(mKey);
+        dest.writeString(mKey);
         dest.writeString(mCityId);
         dest.writeString(mCity);
+        dest.writeString(mState);
         dest.writeString(mPostal);
         dest.writeString(mCountryId);
         dest.writeString(mCountry);
@@ -151,7 +246,8 @@ public final class WeatherLocation implements Parcelable{
         return new StringBuilder()
                 .append("{ City ID: ").append(mCityId)
                 .append(" City: ").append(mCity)
-                .append(" Postal Code: ").append(mPostal)
+                .append(" State: ").append(mState)
+                .append(" Postal/ZIP Code: ").append(mPostal)
                 .append(" Country Id: ").append(mCountryId)
                 .append(" Country: ").append(mCountry).append("}")
                 .toString();
@@ -159,14 +255,19 @@ public final class WeatherLocation implements Parcelable{
 
     @Override
     public int hashCode() {
-        return mKey;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((mKey != null) ? mKey.hashCode() : 0);
+        return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof WeatherLocation) {
-            WeatherLocation info = (WeatherLocation) obj;
-            return (info.hashCode() == this.mKey);
+        if (obj == null) return false;
+
+        if (getClass() == obj.getClass()) {
+            WeatherLocation location = (WeatherLocation) obj;
+            return (TextUtils.equals(mKey, location.mKey));
         }
         return false;
     }

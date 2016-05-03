@@ -60,6 +60,9 @@ public class LiveLockScreenServiceBroker extends SystemService {
 
     private static final long SERVICE_CONNECTION_WAIT_TIME_MS = 4 * 1000L; // 4 seconds
 
+    private static final String DEPRECATED_THIRD_PARTY_KEYGUARD_PERMISSION =
+            "android.permission.THIRD_PARTY_KEYGUARD";
+
     private Context mContext;
     // The actual LLS service to invoke
     private ILiveLockScreenManagerProvider mService;
@@ -92,15 +95,17 @@ public class LiveLockScreenServiceBroker extends SystemService {
                 LiveLockScreenServiceBroker.this.notifyAll();
                 // If any change listeners are cached, register them with the newly connected
                 // service.
-                int N = mChangeListeners.getRegisteredCallbackCount();
-                if (mService != null && N > 0) {
-                    for (int i = 0; i < N; i++) {
-                        try {
+                try {
+                    int N = mChangeListeners.beginBroadcast();
+                    if (mService != null && N > 0) {
+                        for (int i = 0; i < N; i++) {
                             mService.registerChangeListener(mChangeListeners.getBroadcastItem(i));
-                        } catch (RemoteException e) {
-                            /* ignore */
                         }
                     }
+                } catch (RemoteException e) {
+                    /* ignore */
+                } finally {
+                    mChangeListeners.finishBroadcast();
                 }
             }
         }
@@ -380,6 +385,8 @@ public class LiveLockScreenServiceBroker extends SystemService {
             final PackageManager pm = mContext.getPackageManager();
             final boolean hasThirdPartyKeyguardPermission = pm.checkPermission(
                     Manifest.permission.THIRD_PARTY_KEYGUARD,
+                    llsInfo.component.getPackageName()) == PackageManager.PERMISSION_GRANTED
+                    || pm.checkPermission(DEPRECATED_THIRD_PARTY_KEYGUARD_PERMISSION,
                     llsInfo.component.getPackageName()) == PackageManager.PERMISSION_GRANTED;
             if (!hasThirdPartyKeyguardPermission) {
                 Slog.e(TAG, "Package " + llsInfo.component.getPackageName() +
