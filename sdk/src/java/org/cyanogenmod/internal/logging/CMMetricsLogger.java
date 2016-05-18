@@ -69,4 +69,5 @@ public class CMMetricsLogger extends MetricsLogger {
     public static final int TILE_SCREENSHOT = BASE + 42;
     public static final int TILE_SCREENRECORD = BASE + 43;
     public static final int WEATHER_SETTINGS = BASE + 44;
+    public static final int TILE_THEMES = BASE + 45;
 }

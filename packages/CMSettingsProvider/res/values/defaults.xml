@@ -109,4 +109,7 @@
 
     <!-- Default value for adb notification -->
     <integer name="def_adb_notify">0</integer>
+
+    <!-- Default temperature unit (CELSIUS) -->
+    <integer name="def_temperature_unit">2</integer>
 </resources>
