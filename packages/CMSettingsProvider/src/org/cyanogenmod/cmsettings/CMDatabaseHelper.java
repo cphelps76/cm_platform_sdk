@@ -350,6 +350,10 @@ public class CMDatabaseHelper extends SQLiteOpenHelper{
             loadIntegerSetting(stmt, CMSettings.Secure.ADB_NOTIFY,
                     R.integer.def_adb_notify);
 
+            loadStringSetting(stmt,
+                    CMSettings.Secure.ENABLED_EVENT_LIVE_LOCKS_KEY,
+                    R.string.def_enabled_event_lls_components);
+
             final String provisionedFlag = Settings.Global.getString(mContext.getContentResolver(),
                     Settings.Global.DEVICE_PROVISIONED);
             loadSetting(stmt, CMSettings.Secure.CM_SETUP_WIZARD_COMPLETED, provisionedFlag);
