@@ -17,6 +17,7 @@
 package cyanogenmod.hardware;
 
 import cyanogenmod.hardware.DisplayMode;
+import cyanogenmod.hardware.HSIC;
 import cyanogenmod.hardware.IThermalListenerCallback;
 
 /** @hide */
@@ -58,4 +59,15 @@ interface ICMHardwareService {
     boolean isSunlightEnhancementSelfManaged();
 
     String getUniqueDeviceId();
+
+    int getColorBalanceMin();
+    int getColorBalanceMax();
+    int getColorBalance();
+    boolean setColorBalance(int value);
+
+    HSIC getPictureAdjustment();
+    HSIC getDefaultPictureAdjustment();
+    boolean setPictureAdjustment(in HSIC hsic);
+    float[] getPictureAdjustmentRanges();
+
 }

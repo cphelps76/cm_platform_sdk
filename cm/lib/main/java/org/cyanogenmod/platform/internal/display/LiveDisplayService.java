@@ -40,13 +40,11 @@ import android.os.IBinder;
 import android.os.PowerManagerInternal;
 import android.os.Process;
 import android.os.UserHandle;
-import android.util.Log;
 import android.view.Display;
 
 import com.android.internal.util.ArrayUtils;
 import com.android.server.LocalServices;
 import com.android.server.ServiceThread;
-import com.android.server.SystemService;
 import com.android.server.pm.UserContentObserver;
 import com.android.server.twilight.TwilightListener;
 import com.android.server.twilight.TwilightManager;
@@ -67,6 +65,7 @@ import java.util.List;
 import cyanogenmod.app.CMContextConstants;
 import cyanogenmod.app.CMStatusBarManager;
 import cyanogenmod.app.CustomTile;
+import cyanogenmod.hardware.HSIC;
 import cyanogenmod.hardware.ILiveDisplayService;
 import cyanogenmod.hardware.LiveDisplayConfig;
 import cyanogenmod.providers.CMSettings;
@@ -100,6 +99,7 @@ public class LiveDisplayService extends CMSystemService {
     private ColorTemperatureController mCTC;
     private DisplayHardwareController mDHC;
     private OutdoorModeController mOMC;
+    private PictureAdjustmentController mPAC;
 
     private LiveDisplayConfig mConfig;
 
@@ -153,6 +153,11 @@ public class LiveDisplayService extends CMSystemService {
     }
 
     @Override
+    public boolean isCoreService() {
+        return false;
+    }
+
+    @Override
     public void onStart() {
         publishBinderService(CMContextConstants.CM_LIVEDISPLAY_SERVICE, mBinder);
     }
@@ -172,6 +177,9 @@ public class LiveDisplayService extends CMSystemService {
             mOMC = new OutdoorModeController(mContext, mHandler);
             mFeatures.add(mOMC);
 
+            mPAC = new PictureAdjustmentController(mContext, mHandler);
+            mFeatures.add(mPAC);
+
             // Get capabilities, throw out any unused features
             final BitSet capabilities = new BitSet();
             for (Iterator<LiveDisplayFeature> it = mFeatures.iterator(); it.hasNext();) {
@@ -188,7 +196,11 @@ public class LiveDisplayService extends CMSystemService {
             mConfig = new LiveDisplayConfig(capabilities, defaultMode,
                     mCTC.getDefaultDayTemperature(), mCTC.getDefaultNightTemperature(),
                     mOMC.getDefaultAutoOutdoorMode(), mDHC.getDefaultAutoContrast(),
-                    mDHC.getDefaultCABC(), mDHC.getDefaultColorEnhancement());
+                    mDHC.getDefaultCABC(), mDHC.getDefaultColorEnhancement(),
+                    mCTC.getColorTemperatureRange(), mCTC.getColorBalanceRange(),
+                    mPAC.getHueRange(), mPAC.getSaturationRange(),
+                    mPAC.getIntensityRange(), mPAC.getContrastRange(),
+                    mPAC.getSaturationThresholdRange());
 
             // listeners
             mDisplayManager = (DisplayManager) getContext().getSystemService(
@@ -465,6 +477,15 @@ public class LiveDisplayService extends CMSystemService {
         public int getColorTemperature() {
             return mCTC.getColorTemperature();
         }
+
+        @Override
+        public HSIC getPictureAdjustment() { return mPAC.getPictureAdjustment(); }
+
+        @Override
+        public boolean setPictureAdjustment(final HSIC hsic) { return mPAC.setPictureAdjustment(hsic); }
+
+        @Override
+        public HSIC getDefaultPictureAdjustment() { return mPAC.getDefaultPictureAdjustment(); }
 
         @Override
         public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {

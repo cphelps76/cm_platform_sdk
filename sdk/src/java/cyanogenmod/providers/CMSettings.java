@@ -865,6 +865,19 @@ public final class CMSettings {
         public static final Validator ZEN_PRIORITY_ALLOW_LIGHTS_VALIDATOR = sBooleanValidator;
 
         /**
+         * Whether vibrations are allowed when in zen priority mode during downtime
+         * 0: no vibrations
+         * 1: vibrations for calls only
+         * 2: vibrations for calls and notifications
+         * @hide
+         */
+        public static final String ZEN_PRIORITY_VIBRATION_MODE = "zen_priority_vibration_mode";
+
+        /** @hide */
+        public static final Validator ZEN_PRIORITY_VIBRATION_VALIDATOR =
+                new InclusiveIntegerRangeValidator(0, 2);
+
+        /**
          * Display style of AM/PM next to clock in status bar
          * 0: Normal display (Eclair stock)
          * 1: Small display (Froyo stock)
@@ -1311,7 +1324,7 @@ public final class CMSettings {
 
         /** @hide */
         public static final Validator DISPLAY_TEMPERATURE_DAY_VALIDATOR =
-                new InclusiveIntegerRangeValidator(1000, 10000);
+                new InclusiveIntegerRangeValidator(0, 100000);
 
         /**
          * Color temperature of the display at night
@@ -1320,7 +1333,7 @@ public final class CMSettings {
 
         /** @hide */
         public static final Validator DISPLAY_TEMPERATURE_NIGHT_VALIDATOR =
-                new InclusiveIntegerRangeValidator(1000, 10000);
+                new InclusiveIntegerRangeValidator(0, 100000);
 
         /**
          * Display color temperature adjustment mode, one of DAY (default), NIGHT, or AUTO.
@@ -1823,6 +1836,31 @@ public final class CMSettings {
                 sBooleanValidator;
 
         /**
+         * The current custom picture adjustment values as a delimited string
+         */
+        public static final String DISPLAY_PICTURE_ADJUSTMENT =
+                "display_picture_adjustment";
+
+        /** @hide */
+        public static final Validator DISPLAY_PICTURE_ADJUSTMENT_VALIDATOR =
+                new Validator() {
+                    @Override
+                    public boolean validate(String value) {
+                        if (TextUtils.isEmpty(value)) {
+                            return true;
+                        }
+                        final String[] sp = TextUtils.split(value, ",");
+                        for (String s : sp) {
+                            final String[] sp2 = TextUtils.split(s, ":");
+                            if (sp2.length != 2) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                };
+
+        /**
          * I can haz more bukkits
          * @hide
          */
@@ -1895,7 +1933,6 @@ public final class CMSettings {
                 CMSettings.System.QS_SHOW_BRIGHTNESS_SLIDER,
                 CMSettings.System.STATUS_BAR_BRIGHTNESS_CONTROL,
                 CMSettings.System.VOLBTN_MUSIC_CONTROLS,
-                CMSettings.System.SWAP_VOLUME_KEYS_ON_ROTATION,
                 CMSettings.System.USE_EDGE_SERVICE_FOR_GESTURES,
                 CMSettings.System.STATUS_BAR_NOTIF_COUNT,
                 CMSettings.System.CALL_RECORDING_FORMAT,
@@ -2085,8 +2122,11 @@ public final class CMSettings {
             VALIDATORS.put(HEADSET_CONNECT_PLAYER, HEADSET_CONNECT_PLAYER_VALIDATOR);
             VALIDATORS.put(ZEN_ALLOW_LIGHTS, ZEN_ALLOW_LIGHTS_VALIDATOR);
             VALIDATORS.put(ZEN_PRIORITY_ALLOW_LIGHTS, ZEN_PRIORITY_ALLOW_LIGHTS_VALIDATOR);
+            VALIDATORS.put(ZEN_PRIORITY_VIBRATION_MODE, ZEN_PRIORITY_VIBRATION_VALIDATOR);
             VALIDATORS.put(TOUCHSCREEN_GESTURE_HAPTIC_FEEDBACK,
                     TOUCHSCREEN_GESTURE_HAPTIC_FEEDBACK_VALIDATOR);
+            VALIDATORS.put(DISPLAY_PICTURE_ADJUSTMENT,
+                    DISPLAY_PICTURE_ADJUSTMENT_VALIDATOR);
             VALIDATORS.put(__MAGICAL_TEST_PASSING_ENABLER,
                     __MAGICAL_TEST_PASSING_ENABLER_VALIDATOR);
         };
